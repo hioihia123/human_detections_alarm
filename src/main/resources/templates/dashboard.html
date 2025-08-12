@@ -1,0 +1,134 @@
+    <!DOCTYPE html>
+    <html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <!-- Swiper CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+
+        <meta charset="UTF-8">
+        <meta http-equiv="refresh" content="5">
+        <title>Person Detection Dashboard</title>
+        <style>
+            body { font-family: sans-serif; display: grid; place-content: center; height: 100vh; background-color: #f4f4f9; }
+            .dashboard-card { background-color: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+            .count { font-size: 5rem; font-weight: bold; color: #007bff; }
+            h1 { color: #333; }
+
+        .reset-btn {
+            border: none;
+            background-color: #dc3545; /* A red color */
+            color: white;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .reset-btn:hover {
+            background-color: #c82333;
+        }
+        /* Style for the detected image */
+         .detected-image { max-width: 400px; border-radius: 8px; margin-top: 20px; border: 2px solid #ddd; }
+        </style>
+
+    </head>
+    <body>
+        <div class="dashboard-card">
+            <h1>🧍‍♂️ Person Detection Dashboard 🧍‍♀️</h1>
+            <p>Current Person Count:</p>
+            <div id ="person-count" class="count">0</div>
+            <button id ="reset-button" class ="reset-btn">Reset Data</button>
+        </div>
+
+         <div th:if="${imagePath}" class="dashboard-card" style="margin-top: 30px;">
+            <p>Last Detected Image:</p>
+            <img th:src="@{${imagePath}}" alt="Detected Person" class="detected-image"/>
+            <p th:if="${imageTimestamp}" style="margin-top: 10px; font-style: italic; color: #555;">
+                Timestamp: <span th:text="${imageTimestamp}"></span>
+            </p>
+         </div>
+
+
+        <!--Last 20 pics-->
+        <div class="dashboard-card" style="margin-top: 30px; max-width: 600px;">
+      <h2>Last 20 Detections</h2>
+      <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+          <th:block th:each="detection : ${detectionList}">
+            <div class="swiper-slide">
+              <img th:src="@{${detection.imagePath}}" alt="Detection Image" style="max-width: 100%; border-radius: 8px;" />
+              <p th:text="${#temporals.format(detection.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></p>
+            </div>
+          </th:block>
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+      </div>
+    </div>
+
+
+    </div>
+
+
+       <script>
+        const countElement = document.getElementById('person-count');
+        const resetButton = document.getElementById('reset-button');
+
+        // This function fetches the current count from the server
+        async function updateCount() {
+            try {
+                const response = await fetch('/api/count');
+                const count = await response.text();
+                countElement.textContent = count;
+            } catch (error) {
+                console.error('Failed to fetch count:', error);
+                countElement.textContent = 'N/A';
+            }
+        }
+
+        // This function calls the server to reset the count
+        async function resetCounter() {
+            try {
+                const response = await fetch('/api/reset', {
+                    method: 'POST'
+                });
+                console.log(await response.text());
+
+                // Immediately update the display after a successful reset
+                updateCount(); 
+
+                //Clear the image & timestamp on the page
+                document.querySelector("detectionList")?.remove();
+                document.querySelector("[th\\:text='${imageTimestamp}']")?.remove();
+
+            } catch (error) {
+                console.error('Failed to reset count:', error);
+            }
+        }
+
+        // Listen for clicks on the reset button
+        resetButton.addEventListener('click', resetCounter);
+
+        // Run the update function every 2 seconds
+        setInterval(updateCount, 2000);
+
+        // Run it once immediately when the page loads
+        updateCount();
+
+
+    </script>
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+      const swiper = new Swiper('.mySwiper', {
+        loop: false,
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+        slidesPerView: 1,
+        spaceBetween: 20,
+      });
+    </script>
+
+    </body>
+    </html>
