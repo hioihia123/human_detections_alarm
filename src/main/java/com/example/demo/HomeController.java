@@ -47,7 +47,7 @@ public class HomeController {
         this.latestImageName.set(fileName);
 
         try {
-            // 1. Upload the file to S3 immediately. This is still fast.
+            // Upload the file to S3 immediately
             String s3Url = s3Service.uploadFile(fileName, file);
             System.out.println("File uploaded to S3: " + s3Url);
             
@@ -58,18 +58,18 @@ public class HomeController {
             while(latestDetections.size() > 20){
                 latestDetections.removeLast();
             }
-            // 2. Create a message payload (as a Map)
+            //Create a message payload (as a Map)
             Map<String, String> messagePayload = Map.of(
                     "s3Url", s3Url,
                     "timestamp", LocalDateTime.now().toString()
             );
 
-            // 3. Send the message to the SQS queue. This is an asynchronous operation.
+            //Send the message to the SQS queue. --> asynchronous operation.
             String payload = objectMapper.writeValueAsString(messagePayload);
             sqsTemplate.send(payload);
 
             
-            // 4. Immediately return '202 Accepted' to the client.
+            // return '202 Accepted' to the client.
             // This tells the client "I've received your request and will process it."
             return ResponseEntity.accepted().body("Request accepted and is being processed.");
 
@@ -88,7 +88,7 @@ public class HomeController {
         return "dashboard"; //
     }
 
-    // ... other methods in your controller remain unchanged ...
+    // 
     @PostMapping("/api/data")
     @ResponseBody
     public String receiveData(@RequestBody PersonData data) {
