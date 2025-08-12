@@ -80,7 +80,7 @@ public class HomeController {
         }
     }
 
-    // This method remains the same, but its data is now populated by the listener.
+    // data is  populated by the listener.
     @GetMapping("/dashboard")
     public String showDashboard(Model model) {
         model.addAttribute("personCount", latestPersonCount.get());
