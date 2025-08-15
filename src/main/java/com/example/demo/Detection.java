@@ -13,6 +13,8 @@ package com.example.demo;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
+
 
 @DynamoDbBean
 public class Detection {
@@ -20,6 +22,8 @@ public class Detection {
     private String detectionId;
     private String timestamp;
     private String imageUrl;
+    private String recordType; 
+
 
     @DynamoDbPartitionKey
     public String getDetectionId() { return detectionId; }
@@ -32,4 +36,9 @@ public class Detection {
     // This does not need a special annotation
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    
+     // This annotation defines the new field as a GSI partition key for an index named "detections-by-timestamp-gsi"
+    @DynamoDbSecondaryPartitionKey(indexNames = "detections-by-timestamp-gsi") 
+    public String getRecordType() { return recordType; }
+    public void setRecordType(String recordType) { this.recordType = recordType; }
 }

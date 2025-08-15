@@ -45,34 +45,50 @@ public class DetectionRepo {
      * performs a DynamoDB Scan operation
      * @return A list of the 20 most recent Detection objects.
      */
-    public List<Detection> findTop20ByOrderByTimestampDesc() {
-        // Scan the entire table to get all items.
-        Iterable<Detection> allDetectionsIterable = detectionTable.scan(ScanEnhancedRequest.builder().build()).items();
+//    public List<Detection> findTop20ByOrderByTimestampDesc() {
+//        // Scan the entire table to get all items.
+//        Iterable<Detection> allDetectionsIterable = detectionTable.scan(ScanEnhancedRequest.builder().build()).items();
+//
+//        // Convert the results to a List.
+//        List<Detection> allDetections = new ArrayList<>();
+//        allDetectionsIterable.forEach(allDetections::add);
+//
+//        // Sort the list by timestamp in descending order (newest first).
+//        allDetections.sort(Comparator.comparing(Detection::getTimestamp).reversed());
+//
+//        // Return the first 20 items from the sorted list.
+//        return allDetections.stream()
+//                .limit(20)
+//                .collect(Collectors.toList());    
+//
+////         //Build the query
+////         QueryEnhancedRequest request = QueryEnhancedRequest.builder()
+////                 .queryConditional(QueryConditional.keyEqualTo(k -> k.partitionValue("detectionId")))
+////                 .scanIndexForward(false)
+////                 .limit(25)
+////                 .build();
+////         
+////         //Run the query & collect items
+////         return detectionTable.query(request)
+////                 .items()
+////                 .stream()
+////                 .collect(Collectors.toList());
+//            
+//    }
+            public List<Detection> findTop20ByOrderByTimestampDesc() {
+            // targets the GSI to get the 20 newest items
+            // directly from DynamoDB without scanning the whole table.
+            QueryEnhancedRequest request = QueryEnhancedRequest.builder()
+                    .queryConditional(QueryConditional.keyEqualTo(k -> k.partitionValue("DETECTION")))
+                    .scanIndexForward(false) // Sorts by timestamp descending 
+                    .limit(20) // Asks DynamoDB for only the top 20 items
+                    .build();
 
-        // Convert the results to a List.
-        List<Detection> allDetections = new ArrayList<>();
-        allDetectionsIterable.forEach(allDetections::add);
-
-        // Sort the list by timestamp in descending order (newest first).
-        allDetections.sort(Comparator.comparing(Detection::getTimestamp).reversed());
-
-        // Return the first 20 items from the sorted list.
-        return allDetections.stream()
-                .limit(20)
-                .collect(Collectors.toList());    
-
-//         //Build the query
-//         QueryEnhancedRequest request = QueryEnhancedRequest.builder()
-//                 .queryConditional(QueryConditional.keyEqualTo(k -> k.partitionValue("detectionId")))
-//                 .scanIndexForward(false)
-//                 .limit(25)
-//                 .build();
-//         
-//         //Run the query & collect items
-//         return detectionTable.query(request)
-//                 .items()
-//                 .stream()
-//                 .collect(Collectors.toList());
-            
-    }
+            // Run the query on the GSI
+            return detectionTable.index("detections-by-timestamp-gsi")
+                    .query(request)
+                    .stream()
+                    .flatMap(page -> page.items().stream())
+                    .collect(Collectors.toList());
+        }
 }

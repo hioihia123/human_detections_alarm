@@ -53,6 +53,7 @@ public class SqsListenerService {
             detection.setDetectionId(UUID.randomUUID().toString()); // Generate a unique ID
             detection.setTimestamp(timestamp);
             detection.setImageUrl(s3Url);
+            detection.setRecordType("DETECTION");
 
             // 2. Save the object to DynamoDB
             detectionRepo.save(detection);
