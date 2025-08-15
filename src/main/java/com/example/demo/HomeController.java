@@ -17,11 +17,16 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
+
 
 
 
 @Controller
 public class HomeController {
+    @Value("${aws.sqs.queue-name}")
+    private String sqsQueueName;
 
     private final AtomicInteger latestPersonCount = new AtomicInteger(0);
     // This deque will now be populated by the SQS listener, not the controller.
@@ -30,12 +35,14 @@ public class HomeController {
     private final SqsTemplate sqsTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper(); // For converting map to JSON string
     private final AtomicReference<String> latestImageName = new AtomicReference<>();
+    private final DetectionRepo detectionRepo; // Inject the repository
 
 
-    // Inject SqsTemplate
-    public HomeController(S3Service s3Service, SqsTemplate sqsTemplate) {
+    // Update the constructor
+    public HomeController(S3Service s3Service, SqsTemplate sqsTemplate, DetectionRepo detectionRepo) {
         this.s3Service = s3Service;
         this.sqsTemplate = sqsTemplate;
+        this.detectionRepo = detectionRepo; // Assign it
     }
 
     @PostMapping("/api/upload")
@@ -66,7 +73,7 @@ public class HomeController {
 
             //Send the message to the SQS queue. --> asynchronous operation.
             String payload = objectMapper.writeValueAsString(messagePayload);
-            sqsTemplate.send(payload);
+            sqsTemplate.send(sqsQueueName,payload);
 
             
             // return '202 Accepted' to the client.
@@ -80,12 +87,19 @@ public class HomeController {
         }
     }
 
-    // data is  populated by the listener.
     @GetMapping("/dashboard")
     public String showDashboard(Model model) {
+        // Fetch the 20 most recent detections from DynamoDB
+        var detectionsFromDb = detectionRepo.findTop20ByOrderByTimestampDesc();
+
+        // Convert the Detection entities into DetectionEvent records for the view
+        var detectionEvents = detectionsFromDb.stream()
+            .map(d -> new DetectionEvent(d.getImageUrl(), LocalDateTime.parse(d.getTimestamp())))
+            .collect(Collectors.toList());
+
         model.addAttribute("personCount", latestPersonCount.get());
-        model.addAttribute("detectionList", latestDetections);
-        return "dashboard"; //
+        model.addAttribute("detectionList", detectionEvents); // Use the list from the DB
+        return "dashboard";
     }
 
     // 

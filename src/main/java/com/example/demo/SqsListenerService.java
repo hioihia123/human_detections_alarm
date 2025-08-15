@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID; // Import UUID
 
 @Service
 public class SqsListenerService {
@@ -27,41 +28,50 @@ public class SqsListenerService {
     private static final Logger logger = LoggerFactory.getLogger(SqsListenerService.class);
     private final HomeController homeController; // To access the in-memory deque
     private final ObjectMapper objectMapper;
-
-    public SqsListenerService(HomeController homeController) {
+    private final DetectionRepo detectionRepo; // Inject the repository
+    
+    public SqsListenerService(HomeController homeController, DetectionRepo detectionRepo) {
         this.homeController = homeController;
+        this.detectionRepo = detectionRepo;
         // The object mapper needs the JavaTimeModule to understand LocalDateTime
         this.objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
     }
 
-    @SqsListener(value = "${aws.sqs.queue-name}") // Listens to the queue defined in properties
+    @SqsListener(value = "${aws.sqs.queue-name}")
     public void processImageMessage(String message) {
         logger.info("Received new message from SQS: {}", message);
         try {
-            //Parse the JSON message string back into a Map
             TypeReference<Map<String, String>> typeRef = new TypeReference<>() {};
             Map<String, String> payload = objectMapper.readValue(message, typeRef);
 
             String s3Url = payload.get("s3Url");
-            LocalDateTime timestamp = LocalDateTime.parse(payload.get("timestamp"));
+            String timestamp = payload.get("timestamp");
 
-            // 
-            // update the in-memory list in the HomeController.
-            // FIX ME - AI PROCESSING
-            DetectionEvent event = new DetectionEvent(s3Url, timestamp);
-            homeController.latestDetections.addFirst(event);
+            // --- Database Interaction ---
+            // 1. Create a new Detection object
+            Detection detection = new Detection();
+            detection.setDetectionId(UUID.randomUUID().toString()); // Generate a unique ID
+            detection.setTimestamp(timestamp);
+            detection.setImageUrl(s3Url);
 
-            // Keep only the last 20 detections
-            while (homeController.latestDetections.size() > 20) {
-                homeController.latestDetections.removeLast();
-            }
-            logger.info("Successfully processed event for image: {}", s3Url);
+            // 2. Save the object to DynamoDB
+            detectionRepo.save(detection);
+            logger.info("Successfully saved detection {} to DynamoDB.", detection.getDetectionId());
+            // --- End of Database Interaction ---
+
+
+//            // the dashboard will fetch from the DB.
+//            // For now, we can leave it so the dashboard has immediate updates.
+//            DetectionEvent event = new DetectionEvent(s3Url, LocalDateTime.parse(timestamp));
+//            homeController.latestDetections.addFirst(event);
+//
+//            while (homeController.latestDetections.size() > 20) {
+//                homeController.latestDetections.removeLast();
+//            }
+//            logger.info("Successfully processed event for image: {}", s3Url);
 
         } catch (Exception e) {
             logger.error("Error processing message from SQS", e);
-            
-            // By throwing an exception, if a DLQ is configured, Spring Cloud AWS
-            // will eventually move the message to the DLQ after enough failed attempts.
             throw new RuntimeException("Failed to process message", e);
         }
     }
