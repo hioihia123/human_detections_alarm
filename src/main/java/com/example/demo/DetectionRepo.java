@@ -8,7 +8,9 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
-
+import software.amazon.awssdk.enhanced.dynamodb.model.WriteBatch;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class DetectionRepo {
 
     private final DynamoDbTable<Detection> detectionTable;
+    private final DynamoDbEnhancedClient enhancedClient;
 
     /**
      * Constructor that sets up the repository.
@@ -30,6 +33,7 @@ public class DetectionRepo {
         
         // The TableSchema.fromBean(Detection.class) automatically maps the Detection class to the table structure.
         this.detectionTable = enhancedClient.table(tableName, TableSchema.fromBean(Detection.class));
+        this.enhancedClient = enhancedClient;
     }
 
     /**
@@ -75,7 +79,7 @@ public class DetectionRepo {
 ////                 .collect(Collectors.toList());
 //            
 //    }
-            public List<Detection> findTop20ByOrderByTimestampDesc() {
+      public List<Detection> findTop20ByOrderByTimestampDesc() {
             // targets the GSI to get the 20 newest items
             // directly from DynamoDB without scanning the whole table.
             QueryEnhancedRequest request = QueryEnhancedRequest.builder()
@@ -91,4 +95,37 @@ public class DetectionRepo {
                     .flatMap(page -> page.items().stream())
                     .collect(Collectors.toList());
         }
+      
+      public void deleteAll() {
+        List<Key> keysToDelete = detectionTable.scan().items().stream()
+                .map(d -> Key.builder()
+                        .partitionValue(d.getDetectionId())
+                        .sortValue(d.getTimestamp())
+                        .build())
+                .collect(Collectors.toList());
+
+        if (keysToDelete.isEmpty()) {
+            System.out.println("No items to delete");
+            return;
+        }
+
+        // Split into batches of 25
+        for (int i = 0; i < keysToDelete.size(); i += 25) {
+            List<Key> batch = keysToDelete.subList(i, Math.min(i + 25, keysToDelete.size()));
+
+            WriteBatch.Builder<Detection> writeBatchBuilder = WriteBatch.builder(Detection.class)
+                    .mappedTableResource(detectionTable);
+
+            batch.forEach(key -> writeBatchBuilder.addDeleteItem(b -> b.key(key)));
+
+            BatchWriteItemEnhancedRequest batchRequest = BatchWriteItemEnhancedRequest.builder()
+                    .writeBatches(writeBatchBuilder.build())
+                    .build();
+
+            enhancedClient.batchWriteItem(batchRequest);
+      }
+}
+
+
+      
 }

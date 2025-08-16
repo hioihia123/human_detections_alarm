@@ -122,6 +122,7 @@ public class HomeController {
     public String resetCount() {
         this.latestPersonCount.set(0);
         this.latestDetections.clear(); //
+        detectionRepo.deleteAll();
         System.out.println("✅ Data & Image reset");
         return "Count and Image has been reset.";
     }
