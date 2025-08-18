@@ -113,6 +113,7 @@ public class DetectionRepo {
         for (int i = 0; i < keysToDelete.size(); i += 25) {
             List<Key> batch = keysToDelete.subList(i, Math.min(i + 25, keysToDelete.size()));
 
+            //Pass the table name string manually
             WriteBatch.Builder<Detection> writeBatchBuilder = WriteBatch.builder(Detection.class)
                     .mappedTableResource(detectionTable);
 
@@ -124,6 +125,8 @@ public class DetectionRepo {
 
             enhancedClient.batchWriteItem(batchRequest);
       }
+        
+      
 }
 
 

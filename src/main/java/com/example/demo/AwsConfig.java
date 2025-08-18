@@ -22,6 +22,7 @@ import software.amazon.awssdk.services.sqs.SqsAsyncClient; // Import SqsAsyncCli
 
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 @Configuration
 public class AwsConfig {
@@ -79,6 +80,15 @@ public class AwsConfig {
     public DynamoDbEnhancedClient dynamoDbEnhancedClient(DynamoDbClient dynamoDbClient) {
         return DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(dynamoDbClient)
+                .build();
+    }
+    
+    @Bean
+    public SnsClient snsClient(){
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        return SnsClient.builder()
+                .region(Region.of(region))
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
     }
 }

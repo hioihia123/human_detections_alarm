@@ -29,12 +29,16 @@ public class SqsListenerService {
     private final HomeController homeController; // To access the in-memory deque
     private final ObjectMapper objectMapper;
     private final DetectionRepo detectionRepo; // Inject the repository
+    private final SnsService snsService;
     
-    public SqsListenerService(HomeController homeController, DetectionRepo detectionRepo) {
+    public SqsListenerService(HomeController homeController, DetectionRepo detectionRepo, SnsService snsService) {
         this.homeController = homeController;
         this.detectionRepo = detectionRepo;
         // The object mapper needs the JavaTimeModule to understand LocalDateTime
         this.objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        this.snsService = snsService;
+        
+        
     }
 
     @SqsListener(value = "${aws.sqs.queue-name}")
@@ -48,21 +52,23 @@ public class SqsListenerService {
             String timestamp = payload.get("timestamp");
 
             // --- Database Interaction ---
-            // 1. Create a new Detection object
+            //Create a new Detection object
             Detection detection = new Detection();
             detection.setDetectionId(UUID.randomUUID().toString()); // Generate a unique ID
             detection.setTimestamp(timestamp);
             detection.setImageUrl(s3Url);
             detection.setRecordType("DETECTION");
 
-            // 2. Save the object to DynamoDB
+            // Save the object to DynamoDB
             detectionRepo.save(detection);
             logger.info("Successfully saved detection {} to DynamoDB.", detection.getDetectionId());
             // --- End of Database Interaction ---
-
+            
+             // --- Send SMS Alert ---
+             String smsMessage = "New detection logged at " + timestamp + " . Image: " + s3Url;
+             //snsService.sendSms(smsMessage);
 
 //            // the dashboard will fetch from the DB.
-//            // For now, we can leave it so the dashboard has immediate updates.
 //            DetectionEvent event = new DetectionEvent(s3Url, LocalDateTime.parse(timestamp));
 //            homeController.latestDetections.addFirst(event);
 //
