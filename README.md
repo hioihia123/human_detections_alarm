@@ -73,62 +73,59 @@
 
 - ### **Alerting:**
 
-AWS SNS / Twilio API
+  - AWS SNS / Twilio API
 
-Setup and Installation
-Prerequisites
+- ### **Setup and Installation Prerequisites**
 
-Java 21
+  - Java 21
 
-Apache Maven
+  - Apache Maven
 
-Docker Desktop
+  - Docker Desktop
 
-An AWS account with configured credentials
+  - An AWS account with configured credentials
 
-A Twilio account (for the alternative SMS implementation)
 
-1. Configure the Backend
+- ### **1. Configure the Backend**
 
-Clone the repository:
+   - Clone the repository:
+```
+    git clone <your-repository-url>
+    cd jetson-dashboard
+```
+   - Create an application.properties file in src/main/resources/ with the following content. The application is designed to pull sensitive credentials from environment variables.
+     
+    # application's name
+    spring.application.name=my-detection-app
+    
+    # AWS Configuration
+    aws.region=us-east-1
+    aws.s3.bucket-name=<your-s3-bucket-name>
+    aws.dynamodb.table-name=Detections
+    aws.sqs.queue-name=image-processing-queue
+    
+    
+- ### **2. Running with Docker (Recommended)**
 
-Bash
-git clone <your-repository-url>
-cd jetson-dashboard
-Create an application.properties file in src/main/resources/ with the following content. The application is designed to pull sensitive credentials from environment variables.
+   - This is the easiest way to run the application, as the environment is completely self-contained.
 
-Properties
-# application's name
-spring.application.name=my-detection-app
-
-# AWS Configuration
-aws.region=us-east-1
-aws.s3.bucket-name=<your-s3-bucket-name>
-aws.dynamodb.table-name=Detections
-aws.sqs.queue-name=image-processing-queue
-
-# Twilio Configuration (if used)
-twilio.destination-phone-number=<your-personal-phone-number>
-2. Running with Docker (Recommended)
-
-This is the easiest way to run the application, as the environment is completely self-contained.
-
-Build the Docker image:
-
-Bash
-docker build -t your-username/jetson-alarm .
-Run the Docker container:
-Provide your credentials as environment variables.
-
-Bash
-docker run --rm -p 8080:8080 \
--e AWS_ACCESS_KEY_ID="YOUR_AWS_ACCESS_KEY" \
--e AWS_SECRET_ACCESS_KEY="YOUR_AWS_SECRET_KEY" \
--e TWILIO_ACCOUNT_SID="YOUR_TWILIO_SID" \
--e TWILIO_AUTH_TOKEN="YOUR_TWILIO_TOKEN" \
--e TWILIO_TRIAL_NUMBER="YOUR_TWILIO_NUMBER" \
-your-username/jetson-alarm
-3. Running from IDE (e.g., NetBeans)
+   - Build the Docker image:
+    ```
+      docker build -t your-username/jetson-alarm .
+    ```
+    
+   - Run the Docker container:
+     - Provide your credentials as environment variables.
+```
+      docker run --rm -p 8080:8080 \
+      -e AWS_ACCESS_KEY_ID="YOUR_AWS_ACCESS_KEY" \
+      -e AWS_SECRET_ACCESS_KEY="YOUR_AWS_SECRET_KEY" \
+      -e TWILIO_ACCOUNT_SID="YOUR_TWILIO_SID" \
+      -e TWILIO_AUTH_TOKEN="YOUR_TWILIO_TOKEN" \
+      -e TWILIO_TRIAL_NUMBER="YOUR_TWILIO_NUMBER" \
+      your-username/jetson-alarm
+```
+### **3. Running from IDE (e.g., NetBeans)**
 
 Open the project in your IDE.
 
