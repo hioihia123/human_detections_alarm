@@ -127,32 +127,34 @@
 ```
 ### **3. Running from IDE (e.g., NetBeans)**
 
-Open the project in your IDE.
+ - Open the project in your IDE.
 
-Configure the environment variables for your Run Configuration as described in our previous conversations (Project Properties -> Run -> Environment).
+ - Configure the environment variables for your Run Configuration as described in previous steps (Project Properties -> Run -> Environment).
 
-Click "Run Project".
+ - Click "Run Project".
 
-API Usage
-Image Upload
+### **API Usage**
 
-Endpoint: POST /api/upload
+  - Image Upload
 
-Request Type: multipart/form-data
+  - **Endpoint:** POST /api/upload
 
-Field Name: file
+  - **Request Type:** multipart/form-data
 
-Description: The endpoint for the Jetson Nano (or any client) to upload a detection image.
+  - **Field Name:** file
 
-Success Response: HTTP 202 Accepted
+  - **Description:** The endpoint for the Jetson Nano (or any client) to upload a detection image.
 
-Future Improvements
-This project serves as a strong foundation for a production-grade system. Future enhancements could include:
+  - **Success Response:** HTTP 202 Accepted
 
-Comprehensive Integration Testing: Using Testcontainers to validate the full application flow in the CI/CD pipeline.
+### **Future Improvements**
 
-Infrastructure as Code (IaC): Defining all AWS resources (S3, SQS, etc.) in code using AWS CDK or Terraform.
+- This project serves as a strong foundation for a production-grade system. Future enhancements could include:
 
-Enhanced Observability: Integrating Spring Boot Actuator with Prometheus and Grafana to monitor application metrics and health.
+   - **Comprehensive Integration Testing:** Using Testcontainers to validate the full application flow in the CI/CD pipeline.
 
-Deployment to AWS: Deploying the container to a service like AWS App Runner or ECS for a live, scalable production environment.
+   - **Infrastructure as Code (IaC):** Defining all AWS resources (S3, SQS, etc.) in code using AWS CDK or Terraform.
+
+   - **Enhanced Observability:** Integrating Spring Boot Actuator with Prometheus and Grafana to monitor application metrics and health.
+
+   - **Deployment to AWS:** Deploying the container to a service like AWS App Runner or ECS for a live, scalable production environment.
