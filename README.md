@@ -120,9 +120,6 @@
       docker run --rm -p 8080:8080 \
       -e AWS_ACCESS_KEY_ID="YOUR_AWS_ACCESS_KEY" \
       -e AWS_SECRET_ACCESS_KEY="YOUR_AWS_SECRET_KEY" \
-      -e TWILIO_ACCOUNT_SID="YOUR_TWILIO_SID" \
-      -e TWILIO_AUTH_TOKEN="YOUR_TWILIO_TOKEN" \
-      -e TWILIO_TRIAL_NUMBER="YOUR_TWILIO_NUMBER" \
       your-username/jetson-alarm
 ```
 ### **3. Running from IDE (e.g., NetBeans)**
