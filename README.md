@@ -94,7 +94,7 @@
     cd jetson-dashboard
 ```
    - Create an application.properties file in src/main/resources/ with the following content. The application is designed to pull sensitive credentials from environment variables.
-     
+```
     # application's name
     spring.application.name=my-detection-app
     
@@ -103,7 +103,7 @@
     aws.s3.bucket-name=<your-s3-bucket-name>
     aws.dynamodb.table-name=Detections
     aws.sqs.queue-name=image-processing-queue
-    
+```
     
 - ### **2. Running with Docker (Recommended)**
 
