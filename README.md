@@ -75,7 +75,7 @@
 
   - AWS SNS / Twilio API
 
-- ### **Setup and Installation Prerequisites**
+### **Setup and Installation Prerequisites**
 
   - Java 21
 
