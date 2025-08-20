@@ -4,6 +4,10 @@
 - This project is a complete, end-to-end IoT system that uses an NVIDIA Jetson Nano for real-time human detection at the edge and a decoupled, event-driven cloud backend on AWS to process events and send real-time SMS alerts.
 - The backend is built with Java Spring Boot and containerized with Docker, featuring a full CI/CD pipeline for automated testing and packaging.
 
+**Hardware Set Up**
+
+![IMG_0746](https://github.com/user-attachments/assets/b4d50b9e-928f-4036-bfe2-58402b382fb3)
+
 
 **User Diagram**
 
