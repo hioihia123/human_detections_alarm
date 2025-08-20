@@ -1,4 +1,5 @@
-## **Edge-to-Cloud AI Human Detection Alarm**<img width="100" height="100" alt="image" src="https://github.com/user-attachments/assets/56c765fd-86cf-4448-87e5-05f0f46606a0" /> 🤖 ˙✧˖°📷༘ ⋆｡°
+## **Edge-to-Cloud AI Human Detection Alarm**<img width="100" height="100" alt="image" src="https://github.com/user-attachments/assets/56c765fd-86cf-4448-87e5-05f0f46606a0" />  <img width="100" height="100" alt="image" src="https://github.com/user-attachments/assets/b0a40ab8-e5f9-43a2-9c50-0023bbee24f8" />
+🤖 ˙✧˖°📷༘ ⋆｡°
 - This project is a complete, end-to-end IoT system that uses an NVIDIA Jetson Nano for real-time human detection at the edge and a decoupled, event-driven cloud backend on AWS to process events and send real-time SMS alerts.
 - The backend is built with Java Spring Boot and containerized with Docker, featuring a full CI/CD pipeline for automated testing and packaging.
 
