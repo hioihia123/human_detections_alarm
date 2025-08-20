@@ -1,3 +1,8 @@
+**Edge-to-Cloud AI Human Detection Alarm**<img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/56c765fd-86cf-4448-87e5-05f0f46606a0" /> 🤖 ˙✧˖°📷༘ ⋆｡°
+
+
+
+
 **User Diagram**
 
 <img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/5e007b4b-7e44-412c-8b14-8ae8bd8a3208" />
