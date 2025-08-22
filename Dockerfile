@@ -23,6 +23,8 @@ WORKDIR  /app
 #--from=build tells Docker to copy a file from "build" stage (stage 1)
 COPY --from=build /app/target/*.jar app.jar
 
+EXPOSE 8080
+
 #specifies the command that will
 #be executed automatically when a container is STARTED from this image.
 ENTRYPOINT  ["java", "-jar", "app.jar"]

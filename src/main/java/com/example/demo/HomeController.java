@@ -33,6 +33,7 @@ public class HomeController {
     final ConcurrentLinkedDeque<DetectionEvent> latestDetections = new ConcurrentLinkedDeque<>();
     private final S3Service s3Service;
     private final SqsTemplate sqsTemplate;
+    //used to convert a Java Map into a JSON string to send to SQS.
     private final ObjectMapper objectMapper = new ObjectMapper(); // For converting map to JSON string
     private final AtomicReference<String> latestImageName = new AtomicReference<>();
     private final DetectionRepo detectionRepo; // Inject the repository

@@ -5,7 +5,7 @@
 package com.example.demo;
 
 /**
- *
+ * ewq
  * @author nguyenp
  */
 
@@ -35,15 +35,17 @@ public class S3Service {
     }
 
 public String uploadFile(String fileName, MultipartFile file) throws IOException {
-    // Upload file
+    // Build the PutObjectRequest
     PutObjectRequest putObjectRequest = PutObjectRequest.builder()
         .bucket(bucketName)
         .key(fileName)
+        .contentType(file.getContentType()) // optional but useful
         .build();
 
+    // Upload file (using fromBytes)
     s3Client.putObject(
         putObjectRequest,
-        RequestBody.fromInputStream(file.getInputStream(), file.getSize())
+        RequestBody.fromBytes(file.getBytes())
     );
 
     // Get bucket location
@@ -55,12 +57,13 @@ public String uploadFile(String fileName, MultipartFile file) throws IOException
 
     String bucketRegion = locationResponse.locationConstraintAsString();
 
-    // AWS S3 quirk: us-east-1 is returned as null or "US"
+    // AWS quirk: us-east-1 is sometimes null or "US"
     if (bucketRegion == null || bucketRegion.equals("US") || bucketRegion.isEmpty()) {
         return String.format("https://%s.s3.amazonaws.com/%s", bucketName, fileName);
     } else {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, bucketRegion, fileName);
     }
 }
+
 
 }
