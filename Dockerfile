@@ -23,6 +23,7 @@ WORKDIR  /app
 #--from=build tells Docker to copy a file from "build" stage (stage 1)
 COPY --from=build /app/target/*.jar app.jar
 
+#Expose for ElasticBeansTalk
 EXPOSE 8080
 
 #specifies the command that will
